@@ -21,10 +21,10 @@ import java.io.FileReader;
 import java.util.stream.IntStream;
 
 public class App {
-	static String GUID_SERVER_URL = "https://120.126.47.138:8443";
-	static String GUID_SERVER_USERNAME = "nycutest001";
-	static String GUID_SERVER_PASSWORD = "Ksx6O%$i";
-	static String GUID_SERVER_PREFIX = "NYCU01";
+	static String GUID_SERVER_URL = " your guid_server url";
+	static String GUID_SERVER_USERNAME = "your guid_server username";
+	static String GUID_SERVER_PASSWORD = "your guid_server password";
+	static String GUID_SERVER_PREFIX = "your guid_server prefix";
 
 	public static void main(String[] args) throws URISyntaxException, IOException {
 
