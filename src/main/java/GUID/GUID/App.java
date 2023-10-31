@@ -21,62 +21,69 @@ import java.io.FileReader;
 import java.util.stream.IntStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class App {
 	static String GUID_SERVER_URL = "your guid_server url";
 	static String GUID_SERVER_USERNAME = "your guid_server username";
 	static String GUID_SERVER_PASSWORD = "your guid_server password";
 	static String GUID_SERVER_PREFIX = "your guid_server prefix";
+	
+	static int First_Name_index = 6;
+	static int Last_Name_index = 7;
+	static int Gender_index = 3;
+	static int Birthday_index = 2;
+	static int Identifier_index = 1;
 
-	static int Name_index = 1;
-	static int[] needToEnCoder = new int[] { 1, 4 };
+	static int[] needToEnCoder = new int[] { First_Name_index, Last_Name_index, Gender_index, Birthday_index,
+			Identifier_index };
 
-	static String csvFile = "112students.csv"; // 從命令行參數中獲取CSV文件的路徑和文件名稱
+	static String csvFile = "test_patient.csv"; // 從命令行參數中獲取CSV文件的路徑和文件名稱
 	static String csvSplitBy = ","; // CSV文件中的分隔符
 	static String outputMappingCsvFile = "mapping.csv"; // 輸出的CSV文件名稱
 	static String outputEnCoderCsvFile = "enCoder.csv"; // 輸出的CSV文件名稱
 
-	public static void main(String[] args) throws URISyntaxException, IOException {
+	public static void main(String[] args) throws URISyntaxException, IOException, ParseException {
 
 		try (BufferedReader br = new BufferedReader(new FileReader(csvFile));
 				BufferedWriter bwM = new BufferedWriter(new FileWriter(outputMappingCsvFile));
 				BufferedWriter bwE = new BufferedWriter(new FileWriter(outputEnCoderCsvFile));) {
-
+			
 			ArrayList<List<String>> csvData = readCSV(br);
 			ArrayList<List<String>> mappingData = mapping(csvData);
 			ArrayList<List<String>> enCoderData = enCoder(mappingData);
-			
-			witeCSV(mappingData,bwM);
-			witeCSV(enCoderData,bwE);
 
+			witeCSV(mappingData, bwM);
+			witeCSV(enCoderData, bwE);
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static ArrayList<List<String>> enCoder(ArrayList<List<String>> mappingData) {
 		ArrayList<List<String>> result = new ArrayList<>();
-		// List<String> row : mappingData) {
 		for (int i = 0; i < mappingData.size(); i++) {
 			List<String> row = mappingData.get(i); // 獲取內層List<String>
 			String GUID = row.get(0); // 獲取索引0的元素（假設第一個元素是GUID）
 			row.remove(0);
 
-			if(i!=0) {
+			if (i != 0) {
 				for (int needToEnCoder_index : needToEnCoder) {
-	                row.set(needToEnCoder_index, GUID);
+					row.set(needToEnCoder_index, GUID);
 				}
 			}
-			System.out.println(row);
+			System.out.println("csv encoder : " + (i + 1) + "/" + mappingData.size() + " : " + row);
 			result.add(row);
 		}
 
-	return result;
+		return result;
 
 	}
 
-	public static void witeCSV(ArrayList<List<String>> DataList,BufferedWriter csv) {
+	public static void witeCSV(ArrayList<List<String>> DataList, BufferedWriter csv) {
 		try (BufferedWriter writer = csv) {
 			for (List<String> row : DataList) {
 				StringBuilder line = new StringBuilder();
@@ -88,9 +95,9 @@ public class App {
 				writer.write(line.toString());
 				writer.newLine();
 			}
-			System.out.println("CSV文件已成功写入: " + outputMappingCsvFile);
+			System.out.println("CSV文件已成功寫入: " + outputMappingCsvFile);
 		} catch (IOException e) {
-			System.err.println("写入CSV文件时发生错误: " + e.getMessage());
+			System.err.println("写入CSV文件發生錯誤: " + e.getMessage());
 		}
 	}
 
@@ -104,30 +111,49 @@ public class App {
 				List<String> resultData = new ArrayList<>(csvData.get(i));
 
 				if (i != 0) {
-					// 根据Name_index获取firstName和lastName
-					int Name_index = 0; // 你需要正确地定义和赋值Name_index
-					String firstName = String.valueOf(resultData.get(Name_index).charAt(0));
-					String lastName = resultData.get(Name_index).substring(1);
+					String firstName = resultData.get(First_Name_index);
+					String lastName = resultData.get(Last_Name_index);
 
-					// 使用内置类型替代自定义的Sex和Birthday类
-					Sex sex = Sex.MALE;
-					Birthday birthday = new Birthday(2001, 1, 1);
-					String nationalId = "A123456789";
+					Sex sex = String.valueOf(resultData.get(Gender_index).charAt(0)) == "F" ? Sex.FEMALE : Sex.MALE;
+
+					int[] birthday_Array = formatDate(resultData.get(Birthday_index));
+					Birthday birthday = new Birthday(birthday_Array[0], birthday_Array[1], birthday_Array[2]);
+
+					String nationalId = resultData.get(Identifier_index);
 
 					// GUID enCoder
 					GuidValue = GUIDenCoder(firstName, lastName, sex, birthday, nationalId);
 				}
 
 				resultData.add(0, GuidValue);
-				System.out.println(resultData);
+
+				System.out.println("GUIDenCoder : " + (i + 1) + "/" + csvData.size() + " : " + resultData);
+
 				result.add(resultData);
 			}
 		} catch (Exception e) {
 			// 处理可能的异常
-			System.err.println("处理数据时发生错误: " + e.getMessage());
+			System.err.println("處理數據發生錯誤: " + e.getMessage());
 		}
 
 		return result;
+	}
+
+	public static int[] formatDate(String Odate) throws ParseException {
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date parsedDate = dateFormat.parse(Odate);
+		java.sql.Date sqlDate = new java.sql.Date(parsedDate.getTime());
+
+		SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
+		SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
+		SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
+
+		int year = Integer.parseInt(yearFormat.format(sqlDate));
+		int month = Integer.parseInt(monthFormat.format(sqlDate));
+		int day = Integer.parseInt(dayFormat.format(sqlDate));
+		int dayArray[] = { year, month, day };
+		return dayArray;
 	}
 
 	public static ArrayList<List<String>> readCSV(BufferedReader br) throws IOException {
@@ -141,17 +167,6 @@ public class App {
 		}
 
 		return result;
-	}
-
-	public static void witeEnCoderCSV(String[] data, int row_index, String piiString, int[] needToEnCoder,
-			BufferedWriter bwE) {
-		// 使用三元表达式替换指定索引的元素
-		for (int index : needToEnCoder) {
-			data[index] = index >= 0 && index < data.length ? piiString : data[index];
-		}
-		for (String value : data) {
-			System.out.println(value);
-		}
 	}
 
 	public static String GUIDenCoder(String firstName, String lastName, Sex sex, Birthday birthday, String nationalId)
