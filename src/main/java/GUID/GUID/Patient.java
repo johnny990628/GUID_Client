@@ -6,8 +6,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import tw.edu.ym.guid.client.GuidClient;
 import tw.edu.ym.guid.client.PII;
@@ -27,6 +30,7 @@ public class Patient {
 	public String FirstName;
 	public String LastName;
 	public String Datarow;
+	public String dcmFile;
 	
 	public Patient(List<String> patientArray) throws ParseException, URISyntaxException, IOException {
 		this.AccessionNumber = patientArray.get(0);
@@ -37,12 +41,11 @@ public class Patient {
 		this.Phone = patientArray.get(5);
 		this.FirstName = patientArray.get(6);
 		this.LastName = patientArray.get(7);
+		this.dcmFile = patientArray.get(8);
 		this.Guid = getGUID();
 		this.Datarow =getDatarow();
 		
 	}
-	
-	
 	
 	private String getDatarow() {
 		 return this.Guid+","+this.AccessionNumber+","+this.Idenifier+","
@@ -51,26 +54,40 @@ public class Patient {
 	
 	private String getGUID() throws URISyntaxException, IOException, ParseException {
 		Sex sex = String.valueOf(this.Gender.charAt(0)) == "F" ? Sex.FEMALE : Sex.MALE;
-		int[] birthday_Array = formatDate(this.BirthDate);
+		int[] birthday_Array = parseDate(this.BirthDate);
 		Birthday birthDate = new Birthday(birthday_Array[0], birthday_Array[1], birthday_Array[2]);
 		return GUID.encodePatientInfo(this.FirstName,this.LastName,sex,birthDate,this.Idenifier);
 	}
 	
 	
-	private int[] formatDate(String Odate) throws ParseException {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		Date parsedDate = dateFormat.parse(Odate);
-		java.sql.Date sqlDate = new java.sql.Date(parsedDate.getTime());
-		SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
-		SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
-		SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
+	private static int[] parseDate(String dateString) {
+        int[] result = new int[3];
 
-		int year = Integer.parseInt(yearFormat.format(sqlDate));
-		int month = Integer.parseInt(monthFormat.format(sqlDate));
-		int day = Integer.parseInt(dayFormat.format(sqlDate));
-		int dayArray[] = { year, month, day };
-		return dayArray;
-	}
+        try {
+            SimpleDateFormat dateFormat;
+
+            if (dateString.contains("-")) {
+                dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            } else {
+                dateFormat = new SimpleDateFormat("yyyyMMdd");
+            }
+
+            Date date = dateFormat.parse(dateString);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+
+            result[0] = calendar.get(Calendar.YEAR);
+            result[1] = calendar.get(Calendar.MONTH) + 1; // Month is 0-based
+            result[2] = calendar.get(Calendar.DAY_OF_MONTH);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+
 	
 	
 }
