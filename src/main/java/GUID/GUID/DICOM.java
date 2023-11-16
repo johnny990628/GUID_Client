@@ -31,13 +31,34 @@ public class DICOM {
 		}
 	}
 	
-	public void writeMetadata(String folder,String fileName) throws IOException {
-		File modifiedFile = new File(folder+fileName);
-		DicomOutputStream dos = new DicomOutputStream(modifiedFile);
-        dos.writeDataset(dis.getFileMetaInformation(), attrs);
-        dos.close();
-        dis.close();
+	public void writeMetadata(String folder, String fileName) throws IOException {
+	    int counter = 1;
+	    String baseName = fileName;
+	    String extension = "";
+
+	    // Check if the fileName has an extension and split it
+	    int dotIndex = fileName.lastIndexOf('.');
+	    if (dotIndex > 0) {
+	        baseName = fileName.substring(0, dotIndex);
+	        extension = fileName.substring(dotIndex); // includes the dot
+	    }
+
+	    File modifiedFile = new File(folder + fileName);
+
+	    // Increment file name if it already exists
+	    while (modifiedFile.exists()) {
+	        fileName = baseName + "(" + counter +")"+ extension;
+	        modifiedFile = new File(folder + fileName);
+	        counter++;
+	    }
+
+	    // Proceed with your file writing operation
+	    DicomOutputStream dos = new DicomOutputStream(modifiedFile);
+	    dos.writeDataset(dis.getFileMetaInformation(), attrs);
+	    dos.close();
+	    dis.close();
 	}
+
 	
 	public void setGUIDAttributes(String pii) {
 		setAttribute(Tag.PatientName,pii);
