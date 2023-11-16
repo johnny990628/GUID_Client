@@ -2,6 +2,7 @@ package GUID.GUID;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
@@ -19,6 +20,11 @@ import tw.edu.ym.guid.client.field.TWNationalId;
 import tw.edu.ym.guid.client.hashcode.GuidHashcodeGenerator;
 import java.io.FileReader;
 import java.util.stream.IntStream;
+
+import javax.swing.SwingUtilities;
+
+import org.dcm4che3.data.Tag;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -31,30 +37,25 @@ import java.util.Date;
 public class App {
 	
 	public static void main(String[] args) throws URISyntaxException, IOException, ParseException {
-
-		GUID guid = new GUID("test_patient.csv");
-		for (Patient patient : guid.patientList) {
-		    DICOM dicom = new DICOM("test.dcm");
-		    String uid = patient.Guid;
-		    dicom.setGUIDAttributes(uid);
-		    dicom.writeMetadata(uid+".dcm");
-		    System.out.println("Finished file : "+uid+".dcm");
-		}
+		String PATIENT_LIST = "test_patient.csv";
+		File DCM_FOLDER = new File("dicoms");
+		SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new GUI().setVisible(true);
+            }
+        });
 		
-		String csvFilePath = "patient_mapping_list.csv";
+//		ArrayList<Patient> patientList = ReadFile.readPatientCSV(PATIENT_LIST);
+//		ReadFile.setGUIDFromPatientList(patientList);
 		
-		// 寫入 CSV 檔案
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(csvFilePath))) {
-			writer.write("GUID,Accession number,Identifier,Birthday,Gender,Address,Phone,First Name,Last Name");
-			writer.newLine();
-		    for (Patient patient : guid.patientList) {
-		        writer.write(patient.Datarow);
-		        writer.newLine();
-		    }
-		} catch (IOException e) {
-		    e.printStackTrace();
-		}
-
+//		ArrayList<DICOM> dcmList = ReadFile.readDCMFolder(DCM_FOLDER);
+//		ArrayList<Patient> patientList = ReadFile.genPatientListFromDCMList(dcmList);
+//		ReadFile.setGUIDFromPatientList(patientList);
+		
+//		String columns = "GUID,Accession number,Identifier,Birthday,Gender,Address,Phone,First Name,Last Name";
+//		ReadFile.genMappingFile("patient_mapping_list.csv",patientList,columns);
+				
 	}
 
 }

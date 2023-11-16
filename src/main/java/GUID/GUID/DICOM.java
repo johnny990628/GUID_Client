@@ -13,25 +13,26 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
 public class DICOM {
 	private static final ElementDictionary DICT = ElementDictionary.getStandardElementDictionary();
 	public Attributes attrs;
-	private File f;
+	public File dcmFile;
 	DicomInputStream dis;
 	
 	public DICOM(String srcPath) throws IOException {
-		f = new File(srcPath);
-		try (DicomInputStream dis = new DicomInputStream(f)) {
+		dcmFile = new File(srcPath);
+		try (DicomInputStream dis = new DicomInputStream(dcmFile)) {
 			attrs =  dis.readDataset();
 			this.dis = dis;
 		}
 	}
 	
-	public void writeMetadata(String desPath) throws IOException {
-		File modifiedFile = new File("./output/"+desPath);
+	public void writeMetadata(String folder,String fileName) throws IOException {
+		File modifiedFile = new File(folder+fileName);
 		DicomOutputStream dos = new DicomOutputStream(modifiedFile);
         dos.writeDataset(dis.getFileMetaInformation(), attrs);
         dos.close();
@@ -51,6 +52,21 @@ public class DICOM {
 		if(value!=null) {
 			this.attrs.setString(tag, DICT.vrOf(tag), value);
 		}
+	}
+	
+	public ArrayList<String> getAttributes(){
+		ArrayList<String> tempList = new ArrayList<>();
+		
+		tempList.add(this.attrs.getString(Tag.AccessionNumber));
+		tempList.add(this.attrs.getString(Tag.PatientID));
+		tempList.add(this.attrs.getString(Tag.PatientBirthDate));
+		tempList.add(this.attrs.getString(Tag.PatientSex));
+		tempList.add(this.attrs.getString(Tag.PatientAddress));
+		tempList.add(this.attrs.getString(Tag.PatientTelephoneNumbers));
+		tempList.add(this.attrs.getString(Tag.PatientName));
+		tempList.add(this.attrs.getString(Tag.PatientName));
+		tempList.add(this.dcmFile.toString());
+		return tempList;
 	}
        
     
