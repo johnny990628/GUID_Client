@@ -1,2 +1,3 @@
-GUID,Accession number,Identifier,Birthday,Gender,Address,Phone,First Name,Last Name
-NYCU01-46E87JD3,008,A123456789,19500101,M,null,null,Test Patient222,Test Patient222
+GUID,Accession number,StudyDate,Identifier,Birthday,Gender,Address,Phone,First Name,Last Name
+NYCU01-9Z76BACC,Q11201X0068051,20230201,J121202889,19660405,M,null,null,劉建成,劉建成
+NYCU01-XZP1D395,Q11201X0065551,20230131,B220955153,19640725,F,null,null,劉然美,劉然美

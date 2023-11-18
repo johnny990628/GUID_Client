@@ -31,6 +31,7 @@ public class Patient {
 	public String LastName;
 	public String Datarow;
 	public String dcmFile;
+	public String StudyDate;
 	
 	public Patient(List<String> patientArray) throws ParseException, URISyntaxException, IOException {
 		this.AccessionNumber = patientArray.get(0);
@@ -42,13 +43,14 @@ public class Patient {
 		this.FirstName = patientArray.get(6);
 		this.LastName = patientArray.get(7);
 		this.dcmFile = patientArray.get(8);
+		this.StudyDate = patientArray.get(9);
 		this.Guid = getGUID();
 		this.Datarow =getDatarow();
 		
 	}
 	
 	private String getDatarow() {
-		 return this.Guid+","+this.AccessionNumber+","+this.Idenifier+","
+		 return this.Guid+","+this.AccessionNumber+","+this.StudyDate+","+this.Idenifier+","
 				+this.BirthDate+","+this.Gender+","+this.Address+","+this.Phone+","+this.FirstName+","+this.LastName;
 	}
 	

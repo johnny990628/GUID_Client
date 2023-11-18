@@ -132,7 +132,7 @@ public class GUI extends JFrame {
 			textArea.append(file+"\n");
 		}
 		progressBar.setValue(80);
-		String columns = "GUID,Accession number,Identifier,Birthday,Gender,Address,Phone,First Name,Last Name";
+		String columns = "GUID,Accession number,StudyDate,Identifier,Birthday,Gender,Address,Phone,First Name,Last Name";
 		ReadFile.genMappingFile("patient_mapping_list.csv",patientList,columns);
 		textArea.append("Finished mapping file. \n");
 		progressBar.setValue(100);

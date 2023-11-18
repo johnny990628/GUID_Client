@@ -27,6 +27,7 @@ public class DICOM {
 		dcmFile = new File(srcPath);
 		try (DicomInputStream dis = new DicomInputStream(dcmFile)) {
 			attrs =  dis.readDataset();
+			
 			this.dis = dis;
 		}
 	}
@@ -40,9 +41,15 @@ public class DICOM {
 	}
 	
 	public void setGUIDAttributes(String pii) {
-		setAttribute(Tag.PatientName,pii);
+		setAttribute(Tag.InstitutionName,pii);
+		setAttribute(Tag.ReferringPhysicianName,pii);
+		
+		setAttribute(Tag.AccessionNumber,pii);
 		setAttribute(Tag.PatientID,pii);
-		setAttribute(Tag.PatientSex,pii);
+		setAttribute(Tag.PatientName,pii);
+		setAttribute(Tag.OtherPatientNames,pii);
+		setAttribute(Tag.OtherPatientIDs,pii);
+
 		setAttribute(Tag.PatientBirthDate,pii);
 		setAttribute(Tag.PatientAddress,pii);
 		setAttribute(Tag.PatientTelephoneNumbers,pii);
@@ -58,7 +65,7 @@ public class DICOM {
 		ArrayList<String> tempList = new ArrayList<>();
 		
 		tempList.add(this.attrs.getString(Tag.AccessionNumber));
-		tempList.add(this.attrs.getString(Tag.PatientID));
+		tempList.add(this.attrs.getString(Tag.OtherPatientIDs));
 		tempList.add(this.attrs.getString(Tag.PatientBirthDate));
 		tempList.add(this.attrs.getString(Tag.PatientSex));
 		tempList.add(this.attrs.getString(Tag.PatientAddress));
@@ -66,6 +73,7 @@ public class DICOM {
 		tempList.add(this.attrs.getString(Tag.PatientName));
 		tempList.add(this.attrs.getString(Tag.PatientName));
 		tempList.add(this.dcmFile.toString());
+		tempList.add(this.attrs.getString(Tag.StudyDate));
 		return tempList;
 	}
        
